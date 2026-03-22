@@ -37,7 +37,7 @@ class RecipeViewModel extends ChangeNotifier {
 
     final List<Map<String, dynamic>> maps = await _repository.getAllRecipes();
     _recipes = maps.map((map) => Recipe.fromMap(map)).toList();
-    _applyFilter(); // Áp dụng filter hiện tại sau khi load
+    _applyFilter();
 
     _isLoading = false;
     notifyListeners();
@@ -68,7 +68,7 @@ class RecipeViewModel extends ChangeNotifier {
     final stepsMap = steps.map((s) => s.toMap()..remove('id')).toList();
 
     await _repository.insertRecipeWithSteps(recipeMap, stepsMap);
-    await loadRecipes(); // reload + reapply filter
+    await loadRecipes();
   }
 
   // ── Cập nhật công thức ───────────────────────────────────────────────────────

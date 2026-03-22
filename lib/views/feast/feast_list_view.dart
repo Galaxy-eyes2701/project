@@ -477,7 +477,7 @@ class _FeastListViewState extends State<FeastListView> {
                     crossAxisCount: 2,
                     crossAxisSpacing: 12,
                     mainAxisSpacing: 12,
-                    childAspectRatio: 0.82,   // sedikit lebih tinggi untuk akomodasi tombol edit
+                    childAspectRatio: 0.82,
                   ),
                   delegate: SliverChildBuilderDelegate(
                         (context, index) => _FeastGridCard(
@@ -968,7 +968,7 @@ class _FeastCard extends StatelessWidget {
   final Feast feast;
   final int index;
   final VoidCallback onTap;
-  final VoidCallback onEdit;     // ← MỚI
+  final VoidCallback onEdit;
   final VoidCallback onDelete;
 
   const _FeastCard({
@@ -1118,7 +1118,7 @@ class _FeastGridCard extends StatelessWidget {
   final Feast feast;
   final int index;
   final VoidCallback onTap;
-  final VoidCallback onEdit;     // ← MỚI
+  final VoidCallback onEdit;
   final VoidCallback onDelete;
 
   const _FeastGridCard({

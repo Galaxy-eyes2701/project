@@ -807,7 +807,7 @@ class _ShoppingDetailViewState extends State<ShoppingDetailView> {
               ),
               const SizedBox(height: 20),
 
-              // Tên hiện tại — chip hiển thị để user biết đang sửa gì
+              // Tên hiện tại
               Container(
                 padding: const EdgeInsets.symmetric(
                     horizontal: 12, vertical: 8),

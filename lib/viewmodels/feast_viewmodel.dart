@@ -61,13 +61,13 @@ class FeastViewModel extends ChangeNotifier {
   // ── Thêm / xoá món ăn khỏi mâm cỗ ──────────────────────────────────────────
   Future<void> addRecipeToFeast(int feastId, int recipeId) async {
     await _repository.addRecipeToFeast(feastId, recipeId);
-    _recipesCache.remove(feastId); // Buộc FutureBuilder fetch lại từ DB
+    _recipesCache.remove(feastId);
     notifyListeners();
   }
 
   Future<void> removeRecipeFromFeast(int feastId, int recipeId) async {
     await _repository.removeRecipeFromFeast(feastId, recipeId);
-    _recipesCache.remove(feastId); // Buộc FutureBuilder fetch lại từ DB
+    _recipesCache.remove(feastId);
     notifyListeners();
   }
 

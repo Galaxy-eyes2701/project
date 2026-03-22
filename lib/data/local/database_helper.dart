@@ -212,7 +212,7 @@ class DatabaseHelper {
       (2, 'Đồ tươi (Đi chợ sáng 30 Tết)', '$now')
     ''');
 
-    // 6. Thêm các món đồ cần mua thực tế
+    // 6. Thêm các đồ cần mua thực tế
     await db.rawInsert('''
       INSERT INTO shopping_list_items (shopping_list_id, ingredient_name, quantity, unit, is_checked)
       VALUES 

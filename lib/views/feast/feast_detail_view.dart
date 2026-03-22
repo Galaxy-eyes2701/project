@@ -262,7 +262,7 @@ class _FeastDetailViewState extends State<FeastDetailView> {
                       }
                     }),
                   ),
-                  // Nút 3 chấm — dùng Builder để lấy đúng RenderBox
+                  // Nút 3 chấm
                   Builder(
                     builder: (btnCtx) => IconButton(
                       icon: const Icon(Icons.more_vert_rounded,
@@ -476,7 +476,7 @@ class _FeastDetailViewState extends State<FeastDetailView> {
                         ),
                       ),
                       const Spacer(),
-                      // Chip sort (ẩn khi mặc định)
+                      // Chip sort
                       if (_sortMode != _SortMode.nameAsc)
                         _ActiveChip(
                             label: _sortLabel, color: _AppColors.red),
