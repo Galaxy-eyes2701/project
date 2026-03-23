@@ -60,6 +60,118 @@ class _ShoppingDetailViewState extends State<ShoppingDetailView> {
 
   void _refresh() => setState(() => _loadItems());
 
+  void _confirmDeleteItem(
+      BuildContext context, ShoppingListViewModel viewModel, ShoppingItem item) {
+    showDialog(
+      context: context,
+      builder: (ctx) => Dialog(
+        shape: RoundedRectangleBorder(
+            borderRadius: BorderRadius.circular(24)),
+        backgroundColor: _AppColors.cardBg,
+        child: Padding(
+          padding: const EdgeInsets.all(28),
+          child: Column(
+            mainAxisSize: MainAxisSize.min,
+            children: [
+              Container(
+                width: 64, height: 64,
+                decoration: BoxDecoration(
+                  color: _AppColors.red.withOpacity(.1),
+                  shape: BoxShape.circle,
+                ),
+                child: const Icon(Icons.delete_outline_rounded,
+                    color: _AppColors.red, size: 32),
+              ),
+              const SizedBox(height: 16),
+              const Text('Xóa món đồ?',
+                  style: TextStyle(
+                    fontFamily: 'Playfair Display',
+                    fontSize: 20,
+                    fontWeight: FontWeight.w800,
+                    color: _AppColors.dark,
+                  )),
+              const SizedBox(height: 8),
+              Text(
+                'Bạn có chắc muốn xóa\n"${item.ingredientName}" không?',
+                textAlign: TextAlign.center,
+                style: TextStyle(
+                    fontSize: 13, color: _AppColors.muted, height: 1.5),
+              ),
+              const SizedBox(height: 24),
+              Row(
+                children: [
+                  Expanded(
+                    child: TextButton(
+                      onPressed: () => Navigator.pop(ctx),
+                      style: TextButton.styleFrom(
+                        padding: const EdgeInsets.symmetric(vertical: 14),
+                        shape: RoundedRectangleBorder(
+                          borderRadius: BorderRadius.circular(12),
+                          side: BorderSide(color: Colors.grey.shade300),
+                        ),
+                      ),
+                      child: const Text('Huỷ',
+                          style: TextStyle(
+                              color: _AppColors.muted,
+                              fontWeight: FontWeight.w600)),
+                    ),
+                  ),
+                  const SizedBox(width: 12),
+                  Expanded(
+                    child: ElevatedButton(
+                      onPressed: () async {
+                        final itemName = item.ingredientName;
+                        await viewModel.deleteItem(item.id!);
+                        _refresh();
+                        if (ctx.mounted) Navigator.pop(ctx);
+                        if (context.mounted) {
+                          ScaffoldMessenger.of(context).showSnackBar(
+                            SnackBar(
+                              content: Row(
+                                children: [
+                                  const Icon(Icons.delete_rounded,
+                                      color: Colors.white, size: 18),
+                                  const SizedBox(width: 8),
+                                  Expanded(
+                                    child: Text(
+                                      'Đã xóa "$itemName".',
+                                      maxLines: 1,
+                                      overflow: TextOverflow.ellipsis,
+                                    ),
+                                  ),
+                                ],
+                              ),
+                              backgroundColor: _AppColors.red,
+                              behavior: SnackBarBehavior.floating,
+                              shape: RoundedRectangleBorder(
+                                  borderRadius: BorderRadius.circular(12)),
+                              duration: const Duration(seconds: 3),
+                            ),
+                          );
+                        }
+                      },
+                      style: ElevatedButton.styleFrom(
+                        backgroundColor: _AppColors.red,
+                        foregroundColor: Colors.white,
+                        padding: const EdgeInsets.symmetric(vertical: 14),
+                        shape: RoundedRectangleBorder(
+                            borderRadius: BorderRadius.circular(12)),
+                        elevation: 0,
+                      ),
+                      child: const Text('Xóa',
+                          style: TextStyle(
+                              fontWeight: FontWeight.w700, fontSize: 14)),
+                    ),
+                  ),
+                ],
+              ),
+            ],
+          ),
+        ),
+      ),
+    );
+  }
+
   // ── Lọc + sắp xếp trên list đã load ─────────────────
   List<ShoppingItem> _processedItems(List<ShoppingItem> items) {
     var list = items.where((i) {
@@ -494,10 +606,8 @@ class _ShoppingDetailViewState extends State<ShoppingDetailView> {
                             },
                             onEdit: () => _showEditItemDialog(
                                 context, viewModel, item),
-                            onDelete: () async {
-                              await viewModel.deleteItem(item.id!);
-                              _refresh();
-                            },
+                            // MỚI
+                            onDelete: () => _confirmDeleteItem(context, viewModel, item),
                           ),
                         );
                       },
@@ -699,16 +809,41 @@ class _ShoppingDetailViewState extends State<ShoppingDetailView> {
                     child: ElevatedButton(
                       onPressed: () async {
                         if (nameController.text.isNotEmpty) {
+                          final itemName = nameController.text.trim();
                           final newItem = ShoppingItem(
                             shoppingListId: widget.shoppingList.id,
-                            ingredientName: nameController.text.trim(),
-                            quantity:
-                            double.tryParse(qtyController.text),
+                            ingredientName: itemName,
+                            quantity: double.tryParse(qtyController.text),
                             unit: unitController.text.trim(),
                           );
                           await viewModel.addItem(newItem);
                           _refresh();
                           if (ctx.mounted) Navigator.pop(ctx);
+                          if (context.mounted) {
+                            ScaffoldMessenger.of(context).showSnackBar(
+                              SnackBar(
+                                content: Row(
+                                  children: [
+                                    const Icon(Icons.shopping_basket_rounded,
+                                        color: Colors.white, size: 18),
+                                    const SizedBox(width: 8),
+                                    Expanded(
+                                      child: Text(
+                                        'Đã thêm "$itemName" vào danh sách!',
+                                        maxLines: 1,
+                                        overflow: TextOverflow.ellipsis,
+                                      ),
+                                    ),
+                                  ],
+                                ),
+                                backgroundColor: _AppColors.green,
+                                behavior: SnackBarBehavior.floating,
+                                shape: RoundedRectangleBorder(
+                                    borderRadius: BorderRadius.circular(12)),
+                                duration: const Duration(seconds: 3),
+                              ),
+                            );
+                          }
                         }
                       },
                       style: ElevatedButton.styleFrom(
@@ -910,12 +1045,14 @@ class _ShoppingDetailViewState extends State<ShoppingDetailView> {
                   Expanded(
                     flex: 2,
                     child: ElevatedButton(
+                      // MỚI
                       onPressed: () async {
                         if (nameController.text.isNotEmpty) {
+                          final itemName = nameController.text.trim();
                           final updated = ShoppingItem(
                             id:             item.id,
                             shoppingListId: item.shoppingListId,
-                            ingredientName: nameController.text.trim(),
+                            ingredientName: itemName,
                             quantity: double.tryParse(qtyController.text),
                             unit:     unitController.text.trim(),
                             isChecked: item.isChecked,
@@ -923,6 +1060,31 @@ class _ShoppingDetailViewState extends State<ShoppingDetailView> {
                           await viewModel.updateItem(updated);
                           _refresh();
                           if (ctx.mounted) Navigator.pop(ctx);
+                          if (context.mounted) {
+                            ScaffoldMessenger.of(context).showSnackBar(
+                              SnackBar(
+                                content: Row(
+                                  children: [
+                                    const Icon(Icons.check_circle_rounded,
+                                        color: Colors.white, size: 18),
+                                    const SizedBox(width: 8),
+                                    Expanded(
+                                      child: Text(
+                                        'Đã cập nhật "$itemName"!',
+                                        maxLines: 1,
+                                        overflow: TextOverflow.ellipsis,
+                                      ),
+                                    ),
+                                  ],
+                                ),
+                                backgroundColor: _AppColors.green,
+                                behavior: SnackBarBehavior.floating,
+                                shape: RoundedRectangleBorder(
+                                    borderRadius: BorderRadius.circular(12)),
+                                duration: const Duration(seconds: 3),
+                              ),
+                            );
+                          }
                         }
                       },
                       style: ElevatedButton.styleFrom(

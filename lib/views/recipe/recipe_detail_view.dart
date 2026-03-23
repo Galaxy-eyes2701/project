@@ -48,12 +48,34 @@ class RecipeDetailView extends StatelessWidget {
               IconButton(
                 icon: const Icon(Icons.edit_rounded, color: Colors.white),
                 tooltip: 'Sửa công thức',
-                onPressed: () => Navigator.pushReplacement(
-                  context,
-                  MaterialPageRoute(
-                    builder: (_) => RecipeFormView(existingRecipe: recipe),
-                  ),
-                ),
+                onPressed: () async {
+                  final saved = await Navigator.push<bool>(
+                    context,
+                    MaterialPageRoute(
+                      builder: (_) => RecipeFormView(existingRecipe: recipe),
+                    ),
+                  );
+                  if (context.mounted && saved == true) {
+                    Navigator.pop(context); // quay về list
+                    ScaffoldMessenger.of(context).showSnackBar(
+                      SnackBar(
+                        content: const Row(
+                          children: [
+                            Icon(Icons.check_circle_rounded,
+                                color: Colors.white, size: 18),
+                            SizedBox(width: 8),
+                            Text('Công thức đã được cập nhật!'),
+                          ],
+                        ),
+                        backgroundColor: const Color(0xFF2E7D32),
+                        behavior: SnackBarBehavior.floating,
+                        shape: RoundedRectangleBorder(
+                            borderRadius: BorderRadius.circular(12)),
+                        duration: const Duration(seconds: 3),
+                      ),
+                    );
+                  }
+                },
               ),
             ],
             flexibleSpace: FlexibleSpaceBar(

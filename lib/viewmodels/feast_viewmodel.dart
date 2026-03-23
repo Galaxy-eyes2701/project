@@ -57,6 +57,9 @@ class FeastViewModel extends ChangeNotifier {
     _recipesCache[feastId] = recipes;
     return recipes;
   }
+  List<Recipe> recipesInFeast(int feastId) {
+    return _recipesCache[feastId] ?? [];
+  }
 
   // ── Thêm / xoá món ăn khỏi mâm cỗ ──────────────────────────────────────────
   Future<void> addRecipeToFeast(int feastId, int recipeId) async {

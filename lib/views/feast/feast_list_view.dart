@@ -593,8 +593,32 @@ class _FeastListViewState extends State<FeastListView> {
                   Expanded(
                     child: ElevatedButton(
                       onPressed: () {
+                        final feastName = feast.name;
                         viewModel.deleteFeast(feast.id!);
                         Navigator.pop(ctx);
+                        ScaffoldMessenger.of(context).showSnackBar(
+                          SnackBar(
+                            content: Row(
+                              children: [
+                                const Icon(Icons.delete_rounded,
+                                    color: Colors.white, size: 18),
+                                const SizedBox(width: 8),
+                                Expanded(
+                                  child: Text(
+                                    'Đã xóa mâm cỗ "$feastName".',
+                                    maxLines: 1,
+                                    overflow: TextOverflow.ellipsis,
+                                  ),
+                                ),
+                              ],
+                            ),
+                            backgroundColor: _AppColors.red,
+                            behavior: SnackBarBehavior.floating,
+                            shape: RoundedRectangleBorder(
+                                borderRadius: BorderRadius.circular(12)),
+                            duration: const Duration(seconds: 3),
+                          ),
+                        );
                       },
                       style: ElevatedButton.styleFrom(
                         backgroundColor: _AppColors.red,
@@ -717,12 +741,36 @@ class _FeastListViewState extends State<FeastListView> {
                     child: ElevatedButton(
                       onPressed: () {
                         if (nameController.text.isNotEmpty) {
+                          final name = nameController.text.trim();
                           context.read<FeastViewModel>().createFeast(Feast(
-                            name: nameController.text.trim(),
+                            name: name,
                             description: descController.text.trim(),
                             createdAt: DateTime.now(),
                           ));
                           Navigator.pop(ctx);
+                          ScaffoldMessenger.of(context).showSnackBar(
+                            SnackBar(
+                              content: Row(
+                                children: [
+                                  const Icon(Icons.check_circle_rounded,
+                                      color: Colors.white, size: 18),
+                                  const SizedBox(width: 8),
+                                  Expanded(
+                                    child: Text(
+                                      'Đã tạo mâm cỗ "$name" thành công! 🎊',
+                                      maxLines: 1,
+                                      overflow: TextOverflow.ellipsis,
+                                    ),
+                                  ),
+                                ],
+                              ),
+                              backgroundColor: const Color(0xFF2E7D32),
+                              behavior: SnackBarBehavior.floating,
+                              shape: RoundedRectangleBorder(
+                                  borderRadius: BorderRadius.circular(12)),
+                              duration: const Duration(seconds: 3),
+                            ),
+                          );
                         }
                       },
                       style: ElevatedButton.styleFrom(
@@ -896,16 +944,44 @@ class _FeastListViewState extends State<FeastListView> {
                     child: ElevatedButton(
                       onPressed: () async {
                         if (nameController.text.isNotEmpty) {
+                          final newName = nameController.text.trim();
                           await viewModel.updateFeast(
                             Feast(
                               id:          feast.id,
-                              name:        nameController.text.trim(),
+                              name:        newName,
                               description: descController.text.trim(),
                               createdAt:   feast.createdAt,
                             ),
                           );
+                          if (ctx.mounted) Navigator.pop(ctx);
+                          if (context.mounted) {
+                            ScaffoldMessenger.of(context).showSnackBar(
+                              SnackBar(
+                                content: Row(
+                                  children: [
+                                    const Icon(Icons.check_circle_rounded,
+                                        color: Colors.white, size: 18),
+                                    const SizedBox(width: 8),
+                                    Expanded(
+                                      child: Text(
+                                        'Đã lưu thay đổi cho "$newName"!',
+                                        maxLines: 1,
+                                        overflow: TextOverflow.ellipsis,
+                                      ),
+                                    ),
+                                  ],
+                                ),
+                                backgroundColor: const Color(0xFF2E7D32),
+                                behavior: SnackBarBehavior.floating,
+                                shape: RoundedRectangleBorder(
+                                    borderRadius: BorderRadius.circular(12)),
+                                duration: const Duration(seconds: 3),
+                              ),
+                            );
+                          }
+                        } else {
+                          if (ctx.mounted) Navigator.pop(ctx);
                         }
-                        if (ctx.mounted) Navigator.pop(ctx);
                       },
                       style: ElevatedButton.styleFrom(
                         backgroundColor: _AppColors.red,

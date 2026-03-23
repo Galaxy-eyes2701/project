@@ -562,9 +562,34 @@ class _ShoppingListViewState extends State<ShoppingListView> {
                   const SizedBox(width: 12),
                   Expanded(
                     child: ElevatedButton(
+                      // MỚI
                       onPressed: () {
+                        final listName = list.name;
                         viewModel.deleteShoppingList(list.id!);
                         Navigator.pop(ctx);
+                        ScaffoldMessenger.of(context).showSnackBar(
+                          SnackBar(
+                            content: Row(
+                              children: [
+                                const Icon(Icons.delete_rounded,
+                                    color: Colors.white, size: 18),
+                                const SizedBox(width: 8),
+                                Expanded(
+                                  child: Text(
+                                    'Đã xóa danh sách "$listName".',
+                                    maxLines: 1,
+                                    overflow: TextOverflow.ellipsis,
+                                  ),
+                                ),
+                              ],
+                            ),
+                            backgroundColor: _AppColors.red,
+                            behavior: SnackBarBehavior.floating,
+                            shape: RoundedRectangleBorder(
+                                borderRadius: BorderRadius.circular(12)),
+                            duration: const Duration(seconds: 3),
+                          ),
+                        );
                       },
                       style: ElevatedButton.styleFrom(
                         backgroundColor: _AppColors.red,
@@ -718,13 +743,34 @@ class _ShoppingListViewState extends State<ShoppingListView> {
                     child: ElevatedButton(
                       onPressed: () {
                         if (controller.text.isNotEmpty) {
-                          context
-                              .read<ShoppingListViewModel>()
-                              .createShoppingList(ShoppingList(
-                            name: controller.text.trim(),
-                            createdAt: DateTime.now(),
-                          ));
+                          final name = controller.text.trim();
+                          context.read<ShoppingListViewModel>().createShoppingList(
+                            ShoppingList(name: name, createdAt: DateTime.now()),
+                          );
                           Navigator.pop(ctx);
+                          ScaffoldMessenger.of(context).showSnackBar(
+                            SnackBar(
+                              content: Row(
+                                children: [
+                                  const Icon(Icons.check_circle_rounded,
+                                      color: Colors.white, size: 18),
+                                  const SizedBox(width: 8),
+                                  Expanded(
+                                    child: Text(
+                                      'Đã tạo danh sách "$name"!',
+                                      maxLines: 1,
+                                      overflow: TextOverflow.ellipsis,
+                                    ),
+                                  ),
+                                ],
+                              ),
+                              backgroundColor: _AppColors.green,
+                              behavior: SnackBarBehavior.floating,
+                              shape: RoundedRectangleBorder(
+                                  borderRadius: BorderRadius.circular(12)),
+                              duration: const Duration(seconds: 3),
+                            ),
+                          );
                         }
                       },
                       style: ElevatedButton.styleFrom(
@@ -928,6 +974,7 @@ class _ShoppingListViewState extends State<ShoppingListView> {
                   Expanded(
                     flex: 2,
                     child: ElevatedButton(
+                      // MỚI
                       onPressed: () async {
                         final newName = controller.text.trim();
                         if (newName.isNotEmpty && newName != list.name) {
@@ -938,8 +985,35 @@ class _ShoppingListViewState extends State<ShoppingListView> {
                               createdAt: list.createdAt,
                             ),
                           );
+                          if (ctx.mounted) Navigator.pop(ctx);
+                          if (context.mounted) {
+                            ScaffoldMessenger.of(context).showSnackBar(
+                              SnackBar(
+                                content: Row(
+                                  children: [
+                                    const Icon(Icons.check_circle_rounded,
+                                        color: Colors.white, size: 18),
+                                    const SizedBox(width: 8),
+                                    Expanded(
+                                      child: Text(
+                                        'Đã đổi tên thành "$newName"!',
+                                        maxLines: 1,
+                                        overflow: TextOverflow.ellipsis,
+                                      ),
+                                    ),
+                                  ],
+                                ),
+                                backgroundColor: _AppColors.green,
+                                behavior: SnackBarBehavior.floating,
+                                shape: RoundedRectangleBorder(
+                                    borderRadius: BorderRadius.circular(12)),
+                                duration: const Duration(seconds: 3),
+                              ),
+                            );
+                          }
+                        } else {
+                          if (ctx.mounted) Navigator.pop(ctx);
                         }
-                        if (ctx.mounted) Navigator.pop(ctx);
                       },
                       style: ElevatedButton.styleFrom(
                         backgroundColor: _AppColors.green,

@@ -78,6 +78,115 @@ class _FeastDetailViewState extends State<FeastDetailView> {
     return list;
   }
 
+  void _confirmRemoveRecipe(
+      BuildContext context, FeastViewModel feastViewModel, Recipe recipe) {
+    showDialog(
+      context: context,
+      builder: (ctx) => Dialog(
+        shape: RoundedRectangleBorder(
+            borderRadius: BorderRadius.circular(24)),
+        backgroundColor: _AppColors.cardBg,
+        child: Padding(
+          padding: const EdgeInsets.all(28),
+          child: Column(
+            mainAxisSize: MainAxisSize.min,
+            children: [
+              Container(
+                width: 64, height: 64,
+                decoration: BoxDecoration(
+                  color: _AppColors.red.withOpacity(.1),
+                  shape: BoxShape.circle,
+                ),
+                child: const Icon(Icons.remove_circle_outline_rounded,
+                    color: _AppColors.red, size: 32),
+              ),
+              const SizedBox(height: 16),
+              const Text('Xóa món khỏi mâm?',
+                  style: TextStyle(
+                    fontFamily: 'Playfair Display',
+                    fontSize: 20,
+                    fontWeight: FontWeight.w800,
+                    color: _AppColors.dark,
+                  )),
+              const SizedBox(height: 8),
+              Text(
+                'Bạn có chắc muốn xóa "${recipe.name}"\nkhỏi mâm cỗ này không?',
+                textAlign: TextAlign.center,
+                style: TextStyle(
+                    fontSize: 13, color: _AppColors.muted, height: 1.5),
+              ),
+              const SizedBox(height: 24),
+              Row(
+                children: [
+                  Expanded(
+                    child: TextButton(
+                      onPressed: () => Navigator.pop(ctx),
+                      style: TextButton.styleFrom(
+                        padding: const EdgeInsets.symmetric(vertical: 14),
+                        shape: RoundedRectangleBorder(
+                          borderRadius: BorderRadius.circular(12),
+                          side: BorderSide(color: Colors.grey.shade300),
+                        ),
+                      ),
+                      child: Text('Huỷ',
+                          style: TextStyle(
+                              color: _AppColors.muted,
+                              fontWeight: FontWeight.w600)),
+                    ),
+                  ),
+                  const SizedBox(width: 12),
+                  Expanded(
+                    child: ElevatedButton(
+                      onPressed: () {
+                        feastViewModel.removeRecipeFromFeast(
+                            widget.feast.id!, recipe.id!);
+                        Navigator.pop(ctx);
+                        ScaffoldMessenger.of(context).showSnackBar(
+                          SnackBar(
+                            content: Row(
+                              children: [
+                                const Icon(Icons.check_circle_rounded,
+                                    color: Colors.white, size: 18),
+                                const SizedBox(width: 8),
+                                Expanded(
+                                  child: Text(
+                                    'Đã xóa "${recipe.name}" khỏi mâm cỗ.',
+                                    maxLines: 1,
+                                    overflow: TextOverflow.ellipsis,
+                                  ),
+                                ),
+                              ],
+                            ),
+                            backgroundColor: _AppColors.red,
+                            behavior: SnackBarBehavior.floating,
+                            shape: RoundedRectangleBorder(
+                                borderRadius: BorderRadius.circular(12)),
+                            duration: const Duration(seconds: 3),
+                          ),
+                        );
+                      },
+                      style: ElevatedButton.styleFrom(
+                        backgroundColor: _AppColors.red,
+                        foregroundColor: Colors.white,
+                        padding: const EdgeInsets.symmetric(vertical: 14),
+                        shape: RoundedRectangleBorder(
+                            borderRadius: BorderRadius.circular(12)),
+                        elevation: 0,
+                      ),
+                      child: const Text('Xóa món',
+                          style: TextStyle(
+                              fontWeight: FontWeight.w700, fontSize: 14)),
+                    ),
+                  ),
+                ],
+              ),
+            ],
+          ),
+        ),
+      ),
+    );
+  }
+
   String get _sortLabel {
     switch (_sortMode) {
       case _SortMode.nameAsc:     return 'Tên A→Z';
@@ -542,9 +651,8 @@ class _FeastDetailViewState extends State<FeastDetailView> {
                                 );
                               }
                             },
-                            onRemove: () =>
-                                feastViewModel.removeRecipeFromFeast(
-                                    widget.feast.id!, recipe.id!),
+                            onRemove: () => _confirmRemoveRecipe(
+                                context, feastViewModel, recipe),
                           ),
                         );
                       },
@@ -560,7 +668,10 @@ class _FeastDetailViewState extends State<FeastDetailView> {
       // ── FAB ───────────────────────────────────────────────────────────────
       floatingActionButtonLocation: FloatingActionButtonLocation.centerFloat,
       floatingActionButton: _AddRecipeFab(
-        onTap: () => _showAddRecipeBottomSheet(context),
+        onTap: () => _showAddRecipeBottomSheet(
+          context,
+          context.read<FeastViewModel>().recipesInFeast(widget.feast.id!),
+        ),
       ),
     );
   }
@@ -719,7 +830,8 @@ class _FeastDetailViewState extends State<FeastDetailView> {
   }
 
   // ── Bottom Sheet thêm món ──────────────────────────────────────────────────
-  void _showAddRecipeBottomSheet(BuildContext context) {
+  // MỚI
+  void _showAddRecipeBottomSheet(BuildContext context, List<Recipe> currentRecipes) {
     showModalBottomSheet(
       context: context,
       isScrollControlled: true,
@@ -768,12 +880,31 @@ class _FeastDetailViewState extends State<FeastDetailView> {
                 padding:
                 const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
                 child: InkWell(
-                  onTap: () {
+                  onTap: () async {
                     Navigator.pop(bottomSheetContext);
-                    Navigator.push(
-                        context,
-                        MaterialPageRoute(
-                            builder: (_) => const RecipeFormView()));
+                    final result = await Navigator.push(
+                      context,
+                      MaterialPageRoute(builder: (_) => const RecipeFormView()),
+                    );
+                    if (context.mounted) {
+                      ScaffoldMessenger.of(context).showSnackBar(
+                        SnackBar(
+                          content: const Row(
+                            children: [
+                              Icon(Icons.add_circle_rounded,
+                                  color: Colors.white, size: 18),
+                              SizedBox(width: 8),
+                              Text('Công thức mới đã được tạo thành công!'),
+                            ],
+                          ),
+                          backgroundColor: const Color(0xFF2E7D32),
+                          behavior: SnackBarBehavior.floating,
+                          shape: RoundedRectangleBorder(
+                              borderRadius: BorderRadius.circular(12)),
+                          duration: const Duration(seconds: 3),
+                        ),
+                      );
+                    }
                   },
                   borderRadius: BorderRadius.circular(16),
                   child: Container(
@@ -894,11 +1025,63 @@ class _FeastDetailViewState extends State<FeastDetailView> {
                                 color: Color(0xFF2E7D32), size: 20),
                           ),
                           onTap: () {
-                            context
-                                .read<FeastViewModel>()
-                                .addRecipeToFeast(
-                                widget.feast.id!, recipe.id!);
+                            final alreadyAdded = currentRecipes.any((r) => r.id == recipe.id);
+
+                            if (alreadyAdded) {
+                              Navigator.pop(bottomSheetContext);
+                              ScaffoldMessenger.of(context).showSnackBar(
+                                SnackBar(
+                                  content: Row(
+                                    children: [
+                                      const Icon(Icons.info_outline_rounded,
+                                          color: Colors.white, size: 18),
+                                      const SizedBox(width: 8),
+                                      Expanded(
+                                        child: Text(
+                                          '"${recipe.name}" đã có trong mâm cỗ này rồi!',
+                                          maxLines: 1,
+                                          overflow: TextOverflow.ellipsis,
+                                        ),
+                                      ),
+                                    ],
+                                  ),
+                                  backgroundColor: _AppColors.muted,
+                                  behavior: SnackBarBehavior.floating,
+                                  shape: RoundedRectangleBorder(
+                                      borderRadius: BorderRadius.circular(12)),
+                                  duration: const Duration(seconds: 3),
+                                ),
+                              );
+                              return;
+                            }
+
+                            // Chưa có → thêm bình thường
+                            final recipeName = recipe.name;
+                            context.read<FeastViewModel>().addRecipeToFeast(widget.feast.id!, recipe.id!);
                             Navigator.pop(bottomSheetContext);
+                            ScaffoldMessenger.of(context).showSnackBar(
+                              SnackBar(
+                                content: Row(
+                                  children: [
+                                    const Icon(Icons.restaurant_menu_rounded,
+                                        color: Colors.white, size: 18),
+                                    const SizedBox(width: 8),
+                                    Expanded(
+                                      child: Text(
+                                        'Đã thêm "$recipeName" vào mâm cỗ!',
+                                        maxLines: 1,
+                                        overflow: TextOverflow.ellipsis,
+                                      ),
+                                    ),
+                                  ],
+                                ),
+                                backgroundColor: const Color(0xFF2E7D32),
+                                behavior: SnackBarBehavior.floating,
+                                shape: RoundedRectangleBorder(
+                                    borderRadius: BorderRadius.circular(12)),
+                                duration: const Duration(seconds: 3),
+                              ),
+                            );
                           },
                         );
                       },

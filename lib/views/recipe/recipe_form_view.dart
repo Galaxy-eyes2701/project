@@ -125,7 +125,7 @@ class _RecipeFormViewState extends State<RecipeFormView> {
           steps,
         );
       }
-      Navigator.pop(context);
+      Navigator.pop(context, true);
     }
   }
 
@@ -158,7 +158,7 @@ class _RecipeFormViewState extends State<RecipeFormView> {
                 padding: const EdgeInsets.only(left: 8),
                 child: IconButton(
                   icon: const Icon(Icons.arrow_back_ios_new_rounded, color: Colors.white),
-                  onPressed: () => Navigator.pop(context),
+                  onPressed: () => Navigator.pop(context, false),
                 ),
               ),
               flexibleSpace: FlexibleSpaceBar(
