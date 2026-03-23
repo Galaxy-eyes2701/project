@@ -56,7 +56,7 @@ class RecipeDetailView extends StatelessWidget {
                     ),
                   );
                   if (context.mounted && saved == true) {
-                    Navigator.pop(context); // quay về list
+                    Navigator.pop(context);
                     ScaffoldMessenger.of(context).showSnackBar(
                       SnackBar(
                         content: const Row(
